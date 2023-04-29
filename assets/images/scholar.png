@@ -1,0 +1,80 @@
+import 'package:chatapp/components/app_constant.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
+import '../Widgets/chat buble.dart';
+
+class ChatScreen extends StatelessWidget {
+  // عشان اعمل اكسسز علي الداتابيز اللي كريتها علي ال Cloud Firestore
+  CollectionReference messages =
+      FirebaseFirestore.instance.collection(AppConstant.MessagesCollections);
+
+  TextEditingController controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DocumentSnapshot>(
+      future: messages.doc('MCWcb6RiOGiSTsKVdwWl').get(),
+      builder: (context, snapshot) {
+         
+       print(snapshot.data!['text']);
+
+        return SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    AppConstant.AppLogo,
+                    height: 50,
+                  ),
+                  const Text('Chat'),
+                ],
+              ),
+              centerTitle: true,
+              backgroundColor: AppConstant.PrimaryColor,
+              // عشان اخفي سهم ال back
+              automaticallyImplyLeading: false,
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                      itemBuilder: (context, index) => const ChatBuble()),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextField(
+                      controller: controller,
+                      onSubmitted: (data) {
+                        messages.add({
+                          //  Cloud Firestore ال key,value اللي ضفتهم علي
+                          'message': data,
+                        });
+                        controller.clear();
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Send Message',
+                        suffixIcon: const Icon(
+                          Icons.send,
+                          color: AppConstant.PrimaryColor,
+                        ),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                                color: AppConstant.PrimaryColor)),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                                color: AppConstant.PrimaryColor)),
+                      )),
+                ),
+              ],
+            ),
+           ),
+        );
+      },
+    );
+  }
+}
